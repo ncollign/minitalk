@@ -5,19 +5,42 @@
 
 #define MAX_BITS 8
 
+typedef struct s_bit_receiver
+{
+    int byte[MAX_BITS];
+    int nb_bit;
+} t_bit_receiver;
+
 void handle_signal(int sig)
 {
-    static int  index;
-    static int  byte[MAX_BITS];
+    /*static int  bits[MAX_BITS] = {0};
+    static int  index = 0;
 
-    byte = {0};
-    index = 0;
+    if (sig == SIGUSR1)
+        bits[index] = 0;
+    else
+        bits[index] = 1;
+    index++;
+
+    if (bits[MAX_BITS - 1] != NULL)
+    {
+
+    }*/
+    t_bit_receiver byte;
+    if (!byte)
+        malloc
+
+    static char *byte;
+    static nb_bit;
+
     if (sig == SIGUSR1)
     {
-        byte |= (0 << bit);
-    } else if (sig == SIGUSR2) {
-        byte |= (1 << bit); // Met un 1 à la position bit
+        byte = byte + '0';
     }
+    else
+        byte = byte + '1'
+
+
 }
 
 
