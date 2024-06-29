@@ -46,6 +46,10 @@ void handle_signal(int sig)
 
 void    main(void)
 {
+    pid_t	pid;
+
+    pid = getpid();
+
     signal(SIGUSR1, handle_signal);
     signal(SIGUSR2, handle_signal);
 
