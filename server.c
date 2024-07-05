@@ -1,37 +1,54 @@
-#include <signal.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
+#include "minitalk.h"
 
-void	handle_signal(int sig)
+void	handle_signal(int sig, siginfo_t *info, void *context)
+/*
+	This function receive each bit and print a byte when complete
+*/
 {
-	static int	bit = 0;
-	static int	character = 0;
+	static unsigned int	bits = 0;
+	static unsigned int	character = 0;
+
+	(void)info;
+    (void)context;
 
 	if (sig == SIGUSR1)
-		character += (1 << bit);  // Utilisation de += pour mettre à jour le bit correspondant
-	bit++;
-	if (bit == 8)
+		character += (1 << bits);
+	bits++;
+	if (bits == 8)
 	{
 		if (character == '\0')
-			write(1, "\n", 1);  // Fin de chaîne
+			ft_printf("\n");
 		else
-			write(1, &character, 1);  // Afficher le caractère reçu
-		bit = 0;
+			ft_printf("%c", character);
+		bits = 0;
 		character = 0;
 	}
 }
 
 int	main(void)
+/*
+	This main function displays the PID and create an infinity loop to handle signal
+*/
 {
-	pid_t	pid;
+	struct sigaction sa;
 
-	pid = getpid();
-	printf("Server PID: %d\n", pid);
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_sigaction = handle_signal;
+    sigemptyset(&sa.sa_mask);
+
+    if (sigaction(SIGUSR1, &sa, NULL) == -1 || sigaction(SIGUSR2, &sa, NULL) == -1)
+    {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+
+	printf("Server PID: %d\n", getpid());
 	while (1)
+	{
+		/*signal(SIGUSR1, handle_signal);
+		signal(SIGUSR2, handle_signal);*/
 		pause();
+	}
 	return (0);
 }
