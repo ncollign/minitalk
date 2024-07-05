@@ -1,57 +1,41 @@
 #include <signal.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
 
-#define MAX_BITS 8
-
-typedef struct s_bit_receiver
+void	send_char(pid_t server_pid, char c)
 {
-    int byte[MAX_BITS];
-    int nb_bit;
-} t_bit_receiver;
-
-void handle_signal(int sig)
-{
-    /*static int  bits[MAX_BITS] = {0};
-    static int  index = 0;
-
-    if (sig == SIGUSR1)
-        bits[index] = 0;
-    else
-        bits[index] = 1;
-    index++;
-
-    if (bits[MAX_BITS - 1] != NULL)
-    {
-
-    }*/
-    t_bit_receiver byte;
-    if (!byte)
-        malloc
-
-    static char *byte;
-    static nb_bit;
-
-    if (sig == SIGUSR1)
-    {
-        byte = byte + '0';
-    }
-    else
-        byte = byte + '1'
-
-
+	for (int i = 0; i < 8; i++)
+	{
+		if (c & (1 << i))
+			kill(server_pid, SIGUSR1);
+		else
+			kill(server_pid, SIGUSR2);
+		usleep(100);
+	}
 }
 
-
-void    main(void)
+void	send_string(pid_t server_pid, char *str)
 {
-    pid_t	pid;
+	while (*str)
+	{
+		send_char(server_pid, *str);
+		str++;
+	}
+	send_char(server_pid, '\0');  // Envoyer le caractère nul pour indiquer la fin de la chaîne
+}
 
-    pid = getpid();
+int	main(int argc, char **argv)
+{
+	if (argc != 3)
+	{
+		fprintf(stderr, "Usage: %s <server_pid> <message>\n", argv[0]);
+		return (1);
+	}
+	pid_t	server_pid = atoi(argv[1]);
+	char	*message = argv[2];
 
-    signal(SIGUSR1, handle_signal);
-    signal(SIGUSR2, handle_signal);
-
-
+	send_string(server_pid, message);
+	return (0);
 }
