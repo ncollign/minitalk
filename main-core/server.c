@@ -1,6 +1,6 @@
 #include "minitalk.h"
 
-void	handle_signal(int sig, siginfo_t *info, void *context)
+static void	handle_signal(int sig, siginfo_t *info, void *context)
 /*
 	This function receive each bit and print a byte when complete
 */
@@ -30,25 +30,18 @@ int	main(void)
 	This main function displays the PID and create an infinity loop to handle signal
 */
 {
-	struct sigaction sa;
+	struct sigaction	sa;
 
     sa.sa_flags = SA_SIGINFO;
     sa.sa_sigaction = handle_signal;
     sigemptyset(&sa.sa_mask);
-
     if (sigaction(SIGUSR1, &sa, NULL) == -1 || sigaction(SIGUSR2, &sa, NULL) == -1)
     {
-        perror("sigaction");
+        ft_printf("Error\nSigaction\n");
         exit(EXIT_FAILURE);
     }
-
-
-	printf("Server PID: %d\n", getpid());
+	ft_printf("Server PID: %d\n", getpid());
 	while (1)
-	{
-		/*signal(SIGUSR1, handle_signal);
-		signal(SIGUSR2, handle_signal);*/
 		pause();
-	}
 	return (0);
 }

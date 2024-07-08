@@ -1,6 +1,6 @@
 #include "minitalk.h"
 
-void	send_char(pid_t server_pid, unsigned char c)
+static void	send_char(pid_t server_pid, unsigned char c)
 /*
 	This function sends a char to server PID
 */
@@ -30,12 +30,12 @@ void	send_char(pid_t server_pid, unsigned char c)
 			else
 				ft_printf("Bit sent : '0'\n");
 		}
-		usleep(100);
+		usleep(WAIT_TIME);
 		bit++;
 	}
 }
 
-void	send_message(pid_t server_pid, unsigned char *message)
+static void	send_message(pid_t server_pid, unsigned char *message)
 /*
     This function cuts a string into chars, then sends each char to server PID
 */
@@ -61,7 +61,7 @@ int	main(int argc, char **argv)
 
 	if (argc != 3)
 	{
-		fprintf(stderr, "Usage : %s <server_pid> <message>\n", argv[0]);
+		ft_printf("Error\nUsage : %s <server_pid> <message>\n", argv[0]);
 		return (EXIT_FAILURE);
 	}
 	server_pid = atoi(argv[1]);

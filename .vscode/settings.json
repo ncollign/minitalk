@@ -1,0 +1,10 @@
+{
+	"files.associations": {
+		"libft.h": "c",
+		"stdio.h": "c",
+		"types.h": "c",
+		"signal.h": "c",
+		"minitalk.h": "c",
+		"unistd.h": "c"
+	}
+}
