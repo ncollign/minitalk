@@ -1,4 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   big_sort.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ncollign <ncollign@student.42luxembou      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/07/09 11:44:56 by ncollign          #+#    #+#             */
+/*   Updated: 2024/07/09 11:44:57 by ncollign         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minitalk.h"
+
+static void	error_handle(char *message)
+/*
+	This function displays and error message and exit the program
+*/
+{
+	ft_printf("%s", message);
+	exit(EXIT_FAILURE);
+}
 
 static void	send_char(pid_t server_pid, unsigned char c)
 /*
@@ -13,20 +34,14 @@ static void	send_char(pid_t server_pid, unsigned char c)
 		if ((c >> bit) & 1)
 		{
 			if (kill(server_pid, SIGUSR1) == -1)
-			{
-				ft_printf("Error\nSignal sending failed\n");
-				exit(EXIT_FAILURE);
-			}
+				error_handle("Error\nSignal sending failed\n");
 			else
 				ft_printf("Bit sent : '1'\n");
 		}
 		else
 		{
 			if (kill(server_pid, SIGUSR2) == -1)
-			{
-				ft_printf("Error\nSignal sending failed\n");
-				exit(EXIT_FAILURE);
-			}
+				error_handle("Error\nSignal sending failed\n");
 			else
 				ft_printf("Bit sent : '0'\n");
 		}
@@ -40,7 +55,7 @@ static void	send_message(pid_t server_pid, unsigned char *message)
     This function cuts a string into chars, then sends each char to server PID
 */
 {
-	int				i;
+	int	i;
 
 	i = 0;
 	while (message[i])
@@ -48,7 +63,7 @@ static void	send_message(pid_t server_pid, unsigned char *message)
 		send_char(server_pid, message[i]);
 		i++;
 	}
-	send_char(server_pid, '\0'); // Send null character to indicate the end of the message
+	send_char(server_pid, '\0');
 }
 
 int	main(int argc, char **argv)

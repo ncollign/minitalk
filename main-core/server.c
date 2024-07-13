@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   big_sort.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ncollign <ncollign@student.42luxembou      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/07/09 11:44:56 by ncollign          #+#    #+#             */
+/*   Updated: 2024/07/09 11:44:57 by ncollign         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minitalk.h"
 
 static void	handle_signal(int sig, siginfo_t *info, void *context)
@@ -9,8 +21,7 @@ static void	handle_signal(int sig, siginfo_t *info, void *context)
 	static unsigned int	character = 0;
 
 	(void)info;
-    (void)context;
-
+	(void)context;
 	if (sig == SIGUSR1)
 		character += (1 << bits);
 	bits++;
@@ -32,14 +43,15 @@ int	main(void)
 {
 	struct sigaction	sa;
 
-    sa.sa_flags = SA_SIGINFO;
-    sa.sa_sigaction = handle_signal;
-    sigemptyset(&sa.sa_mask);
-    if (sigaction(SIGUSR1, &sa, NULL) == -1 || sigaction(SIGUSR2, &sa, NULL) == -1)
-    {
-        ft_printf("Error\nSigaction\n");
-        exit(EXIT_FAILURE);
-    }
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = handle_signal;
+	sigemptyset(&sa.sa_mask);
+	if ((sigaction(SIGUSR1, &sa, NULL) == -1)
+		|| (sigaction(SIGUSR2, &sa, NULL) == -1))
+	{
+		ft_printf("Error\nSigaction\n");
+		exit(EXIT_FAILURE);
+	}
 	ft_printf("Server PID: %d\n", getpid());
 	while (1)
 		pause();
