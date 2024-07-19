@@ -12,15 +12,6 @@
 
 #include "minitalk.h"
 
-static void	error_handle(char *message)
-/*
-	This function displays and error message and exit the program
-*/
-{
-	ft_printf("%s", message);
-	exit(EXIT_FAILURE);
-}
-
 static void	send_char(pid_t server_pid, unsigned char c)
 /*
 	This function sends a char to server PID
@@ -31,20 +22,10 @@ static void	send_char(pid_t server_pid, unsigned char c)
 	bit = 0;
 	while (bit < 8)
 	{
-		if ((c >> bit) & 1)
-		{
-			if (kill(server_pid, SIGUSR1) == -1)
-				error_handle("Error\nSignal sending failed\n");
-			else
-				ft_printf("Bit sent : '1'\n");
-		}
+		if (c & (1 << bit))
+			kill(server_pid, SIGUSR1);
 		else
-		{
-			if (kill(server_pid, SIGUSR2) == -1)
-				error_handle("Error\nSignal sending failed\n");
-			else
-				ft_printf("Bit sent : '0'\n");
-		}
+			kill(server_pid, SIGUSR2);
 		usleep(WAIT_TIME);
 		bit++;
 	}
@@ -79,7 +60,7 @@ int	main(int argc, char **argv)
 		ft_printf("Error\nUsage : %s <server_pid> <message>\n", argv[0]);
 		return (EXIT_FAILURE);
 	}
-	server_pid = atoi(argv[1]);
+	server_pid = ft_atoi(argv[1]);
 	send_message(server_pid, (unsigned char *)(argv[2]));
 	return (EXIT_SUCCESS);
 }

@@ -12,48 +12,94 @@
 
 #include "minitalk.h"
 
-static void	handle_signal(int sig, siginfo_t *info, void *context)
-/*
-	This function receive each bit and print a byte when complete
-*/
-{
-	static unsigned int	bits = 0;
-	static unsigned int	character = 0;
+#define MAX_CAPACITY 256
 
-	(void)info;
-	(void)context;
-	if (sig == SIGUSR1)
-		character += (1 << bits);
-	bits++;
-	if (bits == 8)
-	{
-		if (character == '\0')
-			ft_printf("\n");
-		else
-			ft_printf("%c", character);
-		bits = 0;
-		character = 0;
-	}
+typedef struct s_data
+{
+    unsigned int bits;
+    unsigned int character;
+    unsigned int length;
+    char *message;
+} t_data;
+
+static void display_message(t_data *data)
+{
+    if (data->message)
+    {
+        ft_printf("%s", data->message);
+        free(data->message);
+        data->message = NULL;
+        data->length = 0;
+    }
 }
 
-int	main(void)
-/*
-	This main function displays the PID and create an infinity loop to handle signal
-*/
+static void add_character(t_data *data, char character)
 {
-	struct sigaction	sa;
+    data->message[data->length] = character;
+    data->length++;
+    data->message[data->length] = '\0';
+	if (data->length + 1 >= MAX_CAPACITY)
+    {
+        display_message(data);
+        data->message = malloc(MAX_CAPACITY + 1);
+        if (!data->message)
+        {
+            ft_printf("Error\nMemory allocation error\n");
+            exit(EXIT_FAILURE);
+        }
+        data->message[0] = '\0';
+    }
+}
 
-	sa.sa_flags = SA_SIGINFO;
-	sa.sa_sigaction = handle_signal;
-	sigemptyset(&sa.sa_mask);
-	if ((sigaction(SIGUSR1, &sa, NULL) == -1)
-		|| (sigaction(SIGUSR2, &sa, NULL) == -1))
-	{
-		ft_printf("Error\nSigaction\n");
-		exit(EXIT_FAILURE);
-	}
-	ft_printf("Server PID: %d\n", getpid());
-	while (1)
-		pause();
-	return (0);
+static void handle_signal(int sig, siginfo_t *info, void *context)
+{
+    static t_data data = {0, 0, 0, NULL};
+
+    (void)info;
+    (void)context;
+    if (data.message == NULL)
+    {
+        data.message = malloc(MAX_CAPACITY + 1);
+        if (!data.message)
+        {
+            ft_printf("Error\nMemory allocation error\n");
+            exit(EXIT_FAILURE);
+        }
+        data.message[0] = '\0';
+    }
+    if (sig == SIGUSR1)
+        data.character |= (1 << data.bits);
+    data.bits++;
+    if (data.bits == 8)
+    {
+        if (data.character == '\0' || data.character == '\n')
+        {
+            display_message(&data);
+            ft_printf("\n");
+        }
+        else
+        {
+            add_character(&data, data.character);
+        }
+        data.bits = 0;
+        data.character = 0;
+    }
+}
+
+int main(void)
+{
+    struct sigaction sa;
+
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_sigaction = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    if ((sigaction(SIGUSR1, &sa, NULL) == -1) || (sigaction(SIGUSR2, &sa, NULL) == -1))
+    {
+        ft_printf("Error\nSigaction\n");
+        exit(EXIT_FAILURE);
+    }
+    ft_printf("Server PID: %d\n", getpid());
+    while (1)
+        pause();
+    return (0);
 }

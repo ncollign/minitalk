@@ -16,6 +16,6 @@
 
 # include <signal.h>
 # include <sys/types.h>
-# define WAIT_TIME 200
+# define WAIT_TIME 100
 
 #endif

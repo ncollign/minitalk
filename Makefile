@@ -14,7 +14,10 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = -L$(LIBFT_PATH) -lft
 
-all: $(SERVER) $(CLIENT)
+all: $(LIBFT) $(SERVER) $(CLIENT)
+
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_PATH)
 
 $(SERVER): $(SERVER_OBJ) $(LIBFT)
 	$(CC) $(CFLAGS) -o ./$(SERVER) $(SERVER_OBJ) $(LDFLAGS)
@@ -24,10 +27,12 @@ $(CLIENT): $(CLIENT_OBJ) $(LIBFT)
 
 clean:
 	rm -f $(SERVER_OBJ) $(CLIENT_OBJ)
+	$(MAKE) -C $(LIBFT_PATH) clean
 
 fclean: clean
 	rm -f ./$(SERVER) ./$(CLIENT)
+	$(MAKE) -C $(LIBFT_PATH) fclean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re $(LIBFT)
