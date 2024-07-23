@@ -19,4 +19,14 @@
 # include <string.h>
 # include <stdio.h>
 
+typedef struct s_data
+{
+	char			*message;
+	unsigned int	bits;
+	unsigned int	character;
+	unsigned int	length;
+	pid_t			client_pid;
+	int				received_signal;
+}	t_data;
+
 #endif
