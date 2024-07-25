@@ -69,7 +69,7 @@ static void	handle_signal(int sig, siginfo_t *info, void *context)
 	{
 		if (g_data.character == '\0' || g_data.character == '\n')
 		{
-			display_message(&g_data);
+			display_message();
 			ft_printf("\n");
 			if (g_data.client_pid != 0)
 				kill(g_data.client_pid, SIGUSR1);
@@ -80,7 +80,7 @@ static void	handle_signal(int sig, siginfo_t *info, void *context)
 			}
 		}
 		else
-			add_character(&g_data);
+			add_character();
 		g_data.bits = 0;
 		g_data.character = 0;
 	}
