@@ -30,17 +30,38 @@ static void	display_message(void)
 	}
 }
 
-static void	add_character(void)
+void	is_byte_complete(void)
 /*
-	This function adds a character into g_g_data
-	Prints the part of the message if bigger than MAX_CAPACITY
+	This function verifies if a byte is complete
+	if bits = 8, display the message if the line is complete or
+	add a character to the line
 */
 {
-	g_data.message[g_data.length] = g_data.character;
-	g_data.length++;
-	g_data.message[g_data.length] = '\0';
-	if (g_data.length >= MAX_CAPACITY)
-		display_message();
+	if (g_data.bits == 8)
+	{
+		if (g_data.character == '\0' || g_data.character == '\n')
+		{
+			display_message();
+			ft_printf("\n");
+			if (g_data.client_pid != 0)
+				kill(g_data.client_pid, SIGUSR1);
+			if (g_data.character == '\0')
+			{
+				free(g_data.message);
+				g_data.message = NULL;
+			}
+		}
+		else
+		{
+			g_data.message[g_data.length] = g_data.character;
+			g_data.length++;
+			g_data.message[g_data.length] = '\0';
+			if (g_data.length >= MAX_CAPACITY)
+				display_message();
+		}
+		g_data.bits = 0;
+		g_data.character = 0;
+	}
 }
 
 static void	handle_signal(int sig, siginfo_t *info, void *context)
@@ -65,25 +86,7 @@ static void	handle_signal(int sig, siginfo_t *info, void *context)
 	if (sig == SIGUSR1)
 		g_data.character += (1 << g_data.bits);
 	g_data.bits++;
-	if (g_data.bits == 8)
-	{
-		if (g_data.character == '\0' || g_data.character == '\n')
-		{
-			display_message();
-			ft_printf("\n");
-			if (g_data.client_pid != 0)
-				kill(g_data.client_pid, SIGUSR1);
-			if (g_data.character == '\0')
-			{
-				free(g_data.message);
-				g_data.message = NULL;
-			}
-		}
-		else
-			add_character();
-		g_data.bits = 0;
-		g_data.character = 0;
-	}
+	is_byte_complete();
 }
 
 static void	reset_g_data(void)
@@ -105,6 +108,9 @@ static void	reset_g_data(void)
 }
 
 int	main(void)
+/*
+	Main function
+*/
 {
 	struct sigaction	sa;
 

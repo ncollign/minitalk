@@ -14,23 +14,23 @@
 
 #define WAIT_TIME 400
 
-static volatile sig_atomic_t received_confirmation = 0;
+static volatile sig_atomic_t	g_received_confirmation = 0;
 
-static void confirmation_handler(int sig)
+static void	confirmation_handler(int sig)
 /*
 	This function handles confirmation message
 */
 {
 	(void)sig;
-	received_confirmation = 1;
+	g_received_confirmation = 1;
 }
 
-static void send_char(pid_t server_pid, unsigned char c)
+static void	send_char(pid_t server_pid, unsigned char c)
 /*
 	This function sends a char to server PID
 */
 {
-	int bit;
+	int	bit;
 
 	bit = 0;
 	while (bit < 8)
@@ -44,12 +44,12 @@ static void send_char(pid_t server_pid, unsigned char c)
 	}
 }
 
-static void send_message(pid_t server_pid, unsigned char *message)
+static void	send_message(pid_t server_pid, unsigned char *message)
 /*
 	This function cuts a string into chars, then sends each char to server PID
 */
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (message[i])
@@ -60,14 +60,14 @@ static void send_message(pid_t server_pid, unsigned char *message)
 	send_char(server_pid, '\0');
 }
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 /*
 	This function verifies input
 	Then send a message to the server PID
 */
 {
-	int server_pid;
-	struct sigaction sa;
+	int					server_pid;
+	struct sigaction	sa;
 
 	if (argc != 3)
 	{
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 	send_message(server_pid, (unsigned char *)(argv[2]));
-	while (!received_confirmation)
+	while (!g_received_confirmation)
 		pause();
 	ft_printf("Message received by server.\n");
 	return (EXIT_SUCCESS);
