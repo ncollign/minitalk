@@ -12,7 +12,7 @@
 
 #include "minitalk.h"
 
-#define WAIT_TIME 100
+#define WAIT_TIME 1000
 
 static volatile sig_atomic_t	g_received_confirmation = 0;
 
