@@ -38,18 +38,18 @@ static void	display_message(t_buffer_node *head)
 	This function displays the message
 */
 {
-	t_buffer_node	*temp;
+	t_buffer_node	*current;
     t_buffer_node	*next_node;
 
-    temp = head;
-    while (temp)
+    current = head;
+    while (current)
     {
-        ft_printf("%s", temp->buffer);
-		next_node = temp->next;
-		free(temp);
-		temp = next_node;
+        ft_printf("%s", current->buffer);
+		next_node = current->next;
+		free(current);
+		current = next_node;
     }
-	ft_printf("\n");    
+	ft_printf("\n"); 
 }
 
 void append_char(t_buffer_node **head, char c)
@@ -61,18 +61,14 @@ void append_char(t_buffer_node **head, char c)
 
     if (*head == NULL)
         *head = create_node();
-
     current = *head;
-    while (current->next != NULL || current->index >= STRING_SIZE)
+
+    while (current->next != NULL)
+        current = current->next;
+    if (current->index + 1 >= STRING_SIZE)
     {
-        if (current->index >= STRING_SIZE)
-        {
-            if (!current->next)
-                current->next = create_node();
-            current = current->next;
-        }
-        else
-            break;
+        current->next = create_node();
+        current = current->next;
     }
     current->buffer[current->index] = c;
     current->index++;
@@ -96,14 +92,12 @@ static void	handle_signal(int sig, siginfo_t *info, void *context)
         if (cur_char == '\0')
         {
             display_message(g_buffer_node);
-            g_buffer_node = NULL;  // Reset the global pointer to prevent dangling references
+            g_buffer_node = NULL;
             if (info && info->si_pid != 0)
-                kill(info->si_pid, SIGUSR1); // Send acknowledgment to the client
+                kill(info->si_pid, SIGUSR1);
         }
         else
-        {
             append_char(&g_buffer_node, cur_char);
-        }
         bit_count = 0;
         cur_char = 0;
     }
