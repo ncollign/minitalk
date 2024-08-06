@@ -19,14 +19,12 @@
 # include <string.h>
 # include <stdio.h>
 
-typedef struct s_data
+# define STRING_SIZE 1000
+typedef struct	s_buffer_node
 {
-	char			*message;
-	unsigned int	bits;
-	unsigned int	character;
-	unsigned int	length;
-	pid_t			client_pid;
-	int				received_signal;
-}	t_data;
+    char				buffer[STRING_SIZE + 1];
+	int					index;
+    struct s_buffer_node	*next;
+} 				t_buffer_node;
 
 #endif

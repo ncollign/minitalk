@@ -12,124 +12,118 @@
 
 #include "minitalk.h"
 
-#define MAX_CAPACITY 32
-#define TIMEOUT 1
+static t_buffer_node	*g_buffer_node = NULL;
 
-static t_data	g_data = {NULL, 0, 0, 0, 0, 0};
-
-static void	display_message(void)
+t_buffer_node	*create_node()
 /*
-	This function displays a message
+	Cette fonction crée un nœud avec un tampon de 1000 caractères.
 */
 {
-	if (g_data.message)
-	{
-		ft_printf("%s", g_data.message);
-		g_data.length = 0;
-		g_data.message[g_data.length] = '\0';
-	}
+	t_buffer_node *new_node;
+
+    new_node = malloc(sizeof(t_buffer_node));
+    if (!new_node)
+    {
+        ft_printf("Erreur\nAllocation mémoire\n");
+        exit(EXIT_FAILURE);
+    }
+    new_node->index = 0;
+    new_node->next = NULL;
+    new_node->buffer[0] = '\0';
+    return (new_node);
 }
 
-void	is_byte_complete(void)
+static void	display_message(t_buffer_node *head)
 /*
-	This function verifies if a byte is complete
-	if bits = 8, display the message if the line is complete or
-	add a character to the line
+	Cette fonction affiche le message
 */
 {
-	if (g_data.bits == 8)
-	{
-		if (g_data.character == '\0' || g_data.character == '\n')
-		{
-			display_message();
-			ft_printf("\n");
-			if (g_data.client_pid != 0)
-				kill(g_data.client_pid, SIGUSR1);
-			if (g_data.character == '\0')
-			{
-				free(g_data.message);
-				g_data.message = NULL;
-			}
-		}
-		else
-		{
-			g_data.message[g_data.length] = g_data.character;
-			g_data.length++;
-			g_data.message[g_data.length] = '\0';
-			if (g_data.length >= MAX_CAPACITY)
-				display_message();
-		}
-		g_data.bits = 0;
-		g_data.character = 0;
-	}
+	t_buffer_node *temp = head;
+
+    while (temp)
+    {
+        ft_printf("%s", temp->buffer);
+        t_buffer_node *prev = temp;
+        temp = temp->next;
+        free(prev); // Libère chaque nœud après utilisation
+    }
+    ft_printf("\n");
+}
+
+void append_char(t_buffer_node **head, char c)
+/*
+	Cette fonction ajoute un caractère à la liste chaînée
+*/
+{
+	t_buffer_node *current;
+
+    if (*head == NULL)
+        *head = create_node();
+
+    current = *head;
+    while (current->next != NULL && current->index >= BUFFER_SIZE)
+    {
+        current = current->next;
+    }
+
+    if (current->index >= BUFFER_SIZE)
+    {
+        current->next = create_node();
+        current = current->next;
+    }
+    current->buffer[current->index] = c; // Correctement assigner le caractère
+    current->index++;
+    current->buffer[current->index] = '\0'; // Assurer que le tampon reste une chaîne C valide
 }
 
 static void	handle_signal(int sig, siginfo_t *info, void *context)
 /*
-	This function handles signal from the client
+	Cette fonction gère les signaux provenant du client
 */
 {
-	(void)context;
-	g_data.received_signal = 1;
-	if (g_data.message == NULL)
-	{
-		g_data.message = (char *)malloc(MAX_CAPACITY + 1);
-		if (!g_data.message)
-		{
-			ft_printf("Error\nMemory allocation error\n");
-			exit(EXIT_FAILURE);
-		}
-		g_data.message[0] = '\0';
-	}
-	if (info && info->si_pid != 0)
-		g_data.client_pid = info->si_pid;
-	if (sig == SIGUSR1)
-		g_data.character += (1 << g_data.bits);
-	g_data.bits++;
-	is_byte_complete();
-}
+	static int bit_count = 0;
+    static char cur_char = 0;
 
-static void	reset_g_data(void)
-/*
-	This function resets all the g_data if no message is sent
-*/
-{
-	if (g_data.message)
-	{
-		free(g_data.message);
-		g_data.message = NULL;
-		ft_printf("\n");
-		g_data.bits = 0;
-		g_data.character = 0;
-		g_data.length = 0;
-		g_data.client_pid = 0;
-		g_data.received_signal = 0;
-	}
+    (void)context; // Pour éviter l'avertissement du compilateur
+    if (sig == SIGUSR1)
+        cur_char |= (1 << bit_count);
+    bit_count++;
+    if (bit_count == 8)
+    {
+        if (cur_char == '\0')
+        {
+            display_message(g_buffer_node);
+            g_buffer_node = NULL; // Réinitialise la tête après l'affichage du message
+            if (info && info->si_pid != 0)
+                kill(info->si_pid, SIGUSR1); // Envoie un accusé de réception au client
+        }
+        else
+        {
+            append_char(&g_buffer_node, cur_char);
+        }
+        bit_count = 0;
+        cur_char = 0;
+    }
 }
 
 int	main(void)
 /*
-	Main function
+	Fonction principale
 */
 {
-	struct sigaction	sa;
+	struct sigaction sa;
 
-	sa.sa_flags = SA_SIGINFO;
-	sa.sa_sigaction = handle_signal;
-	sigemptyset(&sa.sa_mask);
-	if ((sigaction(SIGUSR1, &sa, NULL) == -1)
-		|| (sigaction(SIGUSR2, &sa, NULL) == -1))
-	{
-		ft_printf("Error\nSigaction\n");
-		exit(EXIT_FAILURE);
-	}
-	ft_printf("Server PID: %d\n", getpid());
-	while (1)
-	{
-		sleep(TIMEOUT);
-		if (!g_data.received_signal)
-			reset_g_data();
-		g_data.received_signal = 0;
-	}
-	return (0);
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_sigaction = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    if ((sigaction(SIGUSR1, &sa, NULL) == -1)
+        || (sigaction(SIGUSR2, &sa, NULL) == -1))
+    {
+        ft_printf("Erreur\nSigaction\n");
+        exit(EXIT_FAILURE);
+    }
+    ft_printf("PID du serveur : %d\n", getpid());
+    while (1)
+        pause();
+    return (0);
 }

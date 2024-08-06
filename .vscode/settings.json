@@ -6,6 +6,7 @@
 		"signal.h": "c",
 		"minitalk.h": "c",
 		"unistd.h": "c",
-		"system_error": "c"
+		"system_error": "c",
+		"string.h": "c"
 	}
 }
