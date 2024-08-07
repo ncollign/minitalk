@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   big_sort.c                                         :+:      :+:    :+:   */
+/*   minitalk.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncollign <ncollign@student.42luxembou      +#+  +:+       +#+        */
+/*   By: ncollign <ncollign@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 11:44:56 by ncollign          #+#    #+#             */
-/*   Updated: 2024/07/09 11:44:57 by ncollign         ###   ########.fr       */
+/*   Updated: 2024/08/07 16:05:58 by ncollign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,12 @@
 # include <stdio.h>
 
 # define STRING_SIZE 1000
-typedef struct	s_buffer_node
+
+typedef struct s_buffer_node
 {
-    char				buffer[STRING_SIZE + 1];
-	int					index;
-    struct s_buffer_node	*next;
-} 				t_buffer_node;
+	char						buffer[STRING_SIZE + 1];
+	int							index;
+	struct s_buffer_node		*next;
+}				t_buffer_node;
 
 #endif

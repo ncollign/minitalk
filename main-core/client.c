@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   big_sort.c                                         :+:      :+:    :+:   */
+/*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ncollign <ncollign@student.42luxembou      +#+  +:+       +#+        */
+/*   By: ncollign <ncollign@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 11:44:56 by ncollign          #+#    #+#             */
-/*   Updated: 2024/07/09 11:44:57 by ncollign         ###   ########.fr       */
+/*   Updated: 2024/08/07 16:03:55 by ncollign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-#define WAIT_TIME 100
+#define WAIT_TIME 500
 
 static volatile sig_atomic_t	g_received_confirmation = 0;
 
